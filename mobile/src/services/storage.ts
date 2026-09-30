@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const AUTH_KEY = 'ninna_auth_token';
 export const USER_KEY = 'ninna_user';
 export const BABY_KEY = 'ninna_baby_profile';
+export const RECORDS_KEY = 'ninna_records';
 
 export async function saveSession(token: string, user: Record<string, any>) {
   await AsyncStorage.setItem(AUTH_KEY, token);
@@ -13,6 +14,7 @@ export async function clearSession() {
   await AsyncStorage.removeItem(AUTH_KEY);
   await AsyncStorage.removeItem(USER_KEY);
   await AsyncStorage.removeItem(BABY_KEY);
+  await AsyncStorage.removeItem(RECORDS_KEY);
 }
 
 export async function getStoredToken() {
@@ -31,4 +33,17 @@ export async function getStoredBaby() {
 
 export async function saveBaby(baby: Record<string, any>) {
   await AsyncStorage.setItem(BABY_KEY, JSON.stringify(baby));
+}
+
+export async function addRecord(record: Record<string, any>) {
+  const raw = await AsyncStorage.getItem(RECORDS_KEY);
+  const records = raw ? JSON.parse(raw) : [];
+  const next = [record, ...records];
+  await AsyncStorage.setItem(RECORDS_KEY, JSON.stringify(next));
+  return record;
+}
+
+export async function getRecords() {
+  const raw = await AsyncStorage.getItem(RECORDS_KEY);
+  return raw ? JSON.parse(raw) : [];
 }

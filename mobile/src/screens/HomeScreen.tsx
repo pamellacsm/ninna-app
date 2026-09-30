@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
-
-const AUTH_KEY = 'ninna_auth_token';
-const USER_KEY = 'ninna_user';
+import { getStoredBaby, getStoredUser } from '../services/storage';
 
 export default function HomeScreen() {
   const [user, setUser] = useState<any>(null);
+  const [baby, setBaby] = useState<any>(null);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const savedUser = await AsyncStorage.getItem(USER_KEY);
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
+    const loadData = async () => {
+      const savedUser = await getStoredUser();
+      const savedBaby = await getStoredBaby();
+
+      if (savedUser) setUser(savedUser);
+      if (savedBaby) setBaby(savedBaby);
     };
 
-    loadUser();
+    loadData();
   }, []);
+
+  const babyName = baby?.name || 'Miguel';
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Olá';
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.label}>Hoje</Text>
-        <Text style={styles.name}>{user?.name ? `Olá, ${user.name.split(' ')[0]}` : 'Olá'}</Text>
-        <Text style={styles.age}>Miguel · 8 meses e 12 dias</Text>
+        <Text style={styles.name}>{user?.name ? `Olá, ${firstName}` : 'Olá'}</Text>
+        <Text style={styles.age}>{babyName} · 8 meses e 12 dias</Text>
       </View>
 
       <View style={styles.summaryRow}>

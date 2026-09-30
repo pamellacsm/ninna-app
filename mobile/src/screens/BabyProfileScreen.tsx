@@ -1,26 +1,74 @@
-import React from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert } from 'react-native';
 import { colors } from '../theme/colors';
+import { saveBaby } from '../services/storage';
 
-export default function BabyProfileScreen() {
+export default function BabyProfileScreen({ navigation }: any) {
+  const [name, setName] = useState('Miguel');
+  const [birthDate, setBirthDate] = useState('2025-01-15');
+  const [gender, setGender] = useState('Masculino');
+  const [loading, setLoading] = useState(false);
+
+  const onSave = async () => {
+    if (!name.trim()) {
+      Alert.alert('Preencha o nome do bebê');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await saveBaby({
+        name: name.trim(),
+        birthDate,
+        gender,
+        updatedAt: new Date().toISOString(),
+      });
+      Alert.alert('Perfil salvo', 'Dados do bebê atualizados com sucesso.');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Erro', error.message || 'Não foi possível salvar o perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Perfil do bebê</Text>
       <Text style={styles.subtitle}>Cadastre os dados principais para personalizar a rotina.</Text>
 
       <View style={styles.avatarWrap}>
-        <Text style={styles.avatar}>M</Text>
+        <Text style={styles.avatar}>{name?.charAt(0)?.toUpperCase() || 'M'}</Text>
       </View>
 
-      <TextInput style={styles.input} placeholder="Nome do bebê" placeholderTextColor="#7d877f" />
-      <TextInput style={styles.input} placeholder="Data de nascimento" placeholderTextColor="#7d877f" />
-      <TextInput style={styles.input} placeholder="Sexo (opcional)" placeholderTextColor="#7d877f" />
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do bebê"
+        placeholderTextColor="#7d877f"
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Data de nascimento"
+        placeholderTextColor="#7d877f"
+        value={birthDate}
+        onChangeText={setBirthDate}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Sexo (opcional)"
+        placeholderTextColor="#7d877f"
+        value={gender}
+        onChangeText={setGender}
+      />
 
-      <Pressable style={styles.primaryButton}>
-        <Text style={styles.primaryText}>Salvar perfil</Text>
+      <Pressable style={styles.primaryButton} onPress={onSave} disabled={loading}>
+        <Text style={styles.primaryText}>{loading ? 'Salvando...' : 'Salvar perfil'}</Text>
       </Pressable>
 
-      <Pressable style={styles.secondaryButton}>
+      <Pressable style={styles.secondaryButton} onPress={() => navigation.goBack()}>
         <Text style={styles.secondaryText}>Adicionar outro bebê</Text>
       </Pressable>
     </ScrollView>

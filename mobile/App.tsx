@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -14,6 +14,7 @@ import RegisterOptionsScreen from './src/screens/RegisterOptionsScreen';
 import RecordFormScreen from './src/screens/RecordFormScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
 import { colors } from './src/theme/colors';
+import { getStoredToken } from './src/services/storage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -43,8 +44,24 @@ function MainTabs() {
 }
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(true);
+  const [isLogged, setIsLogged] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = await getStoredToken();
+      setIsLogged(Boolean(token));
+      setReady(true);
+    };
+
+    checkSession();
+  }, []);
+
   const isAuthenticated = useMemo(() => isLogged, [isLogged]);
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <>

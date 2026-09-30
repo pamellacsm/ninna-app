@@ -1,31 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
 
+const USER_KEY = 'ninna_user';
+
 export default function MoreScreen() {
-  const menuItems = [
-    'Perfil do bebê',
-    'Múltiplos bebês',
-    'Compartilhamento',
-    'Premium',
-    'Configurações',
-    'Privacidade',
-  ];
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const raw = await AsyncStorage.getItem(USER_KEY);
+      if (raw) setUser(JSON.parse(raw));
+    };
+    loadUser();
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.label}>Mais</Text>
-        <Text style={styles.title}>NINNA</Text>
+        <Text style={styles.title}>{user?.name || 'Usuário'}</Text>
       </View>
 
       <View style={styles.panel}>
-        {menuItems.map((item) => (
-          <Pressable key={item} style={styles.item}>
-            <Text style={styles.itemText}>{item}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
-        ))}
+        <Text style={styles.item}>Perfil do bebê</Text>
+        <Text style={styles.item}>Múltiplos bebês</Text>
+        <Text style={styles.item}>Compartilhamento</Text>
+        <Text style={styles.item}>Premium</Text>
+        <Text style={styles.item}>Configurações</Text>
+        <Text style={styles.item}>Privacidade</Text>
       </View>
     </ScrollView>
   );
@@ -45,21 +49,11 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: colors.white,
     borderRadius: 20,
-    paddingVertical: 10,
+    padding: 18,
     shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowRadius: 10,
     elevation: 3,
   },
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  itemText: { color: colors.text, fontSize: 16, fontWeight: '600' },
-  chevron: { color: colors.muted, fontSize: 22 },
+  item: { fontSize: 16, color: colors.text, marginBottom: 16 },
 });

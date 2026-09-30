@@ -1,49 +1,54 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
-import { todaySummary, quickActions } from '../data/mockData';
+
+const AUTH_KEY = 'ninna_auth_token';
+const USER_KEY = 'ninna_user';
 
 export default function HomeScreen() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const savedUser = await AsyncStorage.getItem(USER_KEY);
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    };
+
+    loadUser();
+  }, []);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.label}>Hoje</Text>
-        <Text style={styles.name}>{todaySummary.babyName}</Text>
-        <Text style={styles.age}>{todaySummary.age}</Text>
+        <Text style={styles.name}>{user?.name ? `Olá, ${user.name.split(' ')[0]}` : 'Olá'}</Text>
+        <Text style={styles.age}>Miguel · 8 meses e 12 dias</Text>
       </View>
 
       <View style={styles.summaryRow}>
-        <Card title="Mamadeira" value={todaySummary.lastFeed} color={colors.greenMid} />
-        <Card title="Sono" value={todaySummary.lastSleep} color={colors.gold} />
+        <MiniCard title="Mamadeira" value="Mamou há 42 min" color={colors.greenMid} />
+        <MiniCard title="Sono" value="Dormiu há 2h 15m" color={colors.gold} />
       </View>
 
       <View style={styles.summaryRow}>
-        <Card title="Banho" value={todaySummary.lastBath} color={colors.greenSoft} />
-        <Card title="Fralda" value={todaySummary.lastDiaper} color={colors.success} />
-      </View>
-
-      <View style={styles.quickActionsWrapper}>
-        <Text style={styles.sectionTitle}>Registrar</Text>
-        <View style={styles.quickActions}>
-          {quickActions.map((item) => (
-            <Pressable key={item} style={styles.quickAction}>
-              <Text style={styles.quickActionText}>{item}</Text>
-            </Pressable>
-          ))}
-        </View>
+        <MiniCard title="Banho" value="Banho há 3h 05m" color={colors.greenSoft} />
+        <MiniCard title="Fralda" value="Fralda trocada há 1h 05m" color={colors.success} />
       </View>
 
       <View style={styles.panel}>
         <Text style={styles.sectionTitle}>Resumo</Text>
-        <Text style={styles.metric}>Temperatura: {todaySummary.temp}</Text>
-        <Text style={styles.metric}>Água: {todaySummary.water}</Text>
-        <Text style={styles.metric}>Último banho: {todaySummary.lastBath}</Text>
+        <Text style={styles.metric}>Temperatura: 36,8°C</Text>
+        <Text style={styles.metric}>Água: 1 copo</Text>
+        <Text style={styles.metric}>Último banho: 3h 05m</Text>
       </View>
     </ScrollView>
   );
 }
 
-function Card({ title, value, color }: { title: string; value: string; color: string }) {
+function MiniCard({ title, value, color }: { title: string; value: string; color: string }) {
   return (
     <View style={[styles.card, { backgroundColor: color }]}>
       <Text style={styles.cardTitle}>{title}</Text>
@@ -62,7 +67,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: { color: '#dfeadf', fontSize: 14, marginBottom: 6 },
-  name: { color: colors.white, fontSize: 32, fontWeight: '700' },
+  name: { color: colors.white, fontSize: 30, fontWeight: '700' },
   age: { color: '#dfeadf', fontSize: 16, marginTop: 4 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, gap: 12 },
   card: {
@@ -74,18 +79,6 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 14, color: colors.white, fontWeight: '600' },
   cardValue: { marginTop: 8, color: colors.white, fontSize: 18, fontWeight: '700' },
-  quickActionsWrapper: { marginTop: 10, marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  quickActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  quickAction: {
-    backgroundColor: '#edf3ee',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginRight: 10,
-    marginBottom: 10,
-  },
-  quickActionText: { color: colors.greenDeep, fontWeight: '600' },
   panel: {
     backgroundColor: colors.white,
     borderRadius: 20,
@@ -95,5 +88,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
   metric: { fontSize: 16, color: colors.text, marginBottom: 8 },
 });

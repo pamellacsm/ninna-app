@@ -1,35 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { colors } from '../theme/colors';
-
-const USER_KEY = 'ninna_user';
+import { useNavigation } from '@react-navigation/native';
 
 export default function MoreScreen() {
-  const [user, setUser] = useState<any>(null);
+  const navigation = useNavigation<any>();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const raw = await AsyncStorage.getItem(USER_KEY);
-      if (raw) setUser(JSON.parse(raw));
-    };
-    loadUser();
-  }, []);
+  const items = [
+    { label: 'Perfil do bebê', action: () => navigation.navigate('BabyProfile') },
+    { label: 'Premium', action: () => navigation.navigate('Premium') },
+    { label: 'Configurações', action: () => null },
+    { label: 'Privacidade', action: () => null },
+  ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.label}>Mais</Text>
-        <Text style={styles.title}>{user?.name || 'Usuário'}</Text>
+        <Text style={styles.title}>Conta</Text>
       </View>
 
       <View style={styles.panel}>
-        <Text style={styles.item}>Perfil do bebê</Text>
-        <Text style={styles.item}>Múltiplos bebês</Text>
-        <Text style={styles.item}>Compartilhamento</Text>
-        <Text style={styles.item}>Premium</Text>
-        <Text style={styles.item}>Configurações</Text>
-        <Text style={styles.item}>Privacidade</Text>
+        {items.map((item) => (
+          <Pressable key={item.label} onPress={item.action} style={styles.itemWrap}>
+            <Text style={styles.item}>{item.label}</Text>
+          </Pressable>
+        ))}
       </View>
     </ScrollView>
   );
@@ -55,5 +51,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  item: { fontSize: 16, color: colors.text, marginBottom: 16 },
+  itemWrap: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#eef2ee' },
+  item: { fontSize: 16, color: colors.text, fontWeight: '600' },
 });

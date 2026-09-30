@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { colors } from '../theme/colors';
-import { getStoredBaby, getStoredUser } from '../services/storage';
+import { getStoredBaby, getStoredUser, getRecords } from '../services/storage';
 
 export default function HomeScreen() {
   const [user, setUser] = useState<any>(null);
   const [baby, setBaby] = useState<any>(null);
+  const [records, setRecords] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
       const savedUser = await getStoredUser();
       const savedBaby = await getStoredBaby();
+      const savedRecords = await getRecords();
 
       if (savedUser) setUser(savedUser);
       if (savedBaby) setBaby(savedBaby);
+      if (savedRecords) setRecords(savedRecords);
     };
 
     loadData();
@@ -21,6 +24,23 @@ export default function HomeScreen() {
 
   const babyName = baby?.name || 'Miguel';
   const firstName = user?.name ? user.name.split(' ')[0] : 'Olá';
+
+  const lastFeeding = records
+    .filter((item) => item.type === 'feeding')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+  const lastSleep = records
+    .filter((item) => item.type === 'sleep')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+  const lastDiaper = records
+    .filter((item) => item.type === 'diaper')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+  const recentStatus =
+    lastFeeding || lastSleep || lastDiaper
+      ? 'Últimas ações registradas com sucesso.'
+      : 'Ainda não há registros hoje.';
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -31,17 +51,34 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.summaryRow}>
-        <MiniCard title="Mamadeira" value="Mamou há 42 min" color={colors.greenMid} />
-        <MiniCard title="Sono" value="Dormiu há 2h 15m" color={colors.gold} />
+        <MiniCard
+          title="Mamadeira"
+          value={lastFeeding ? `${lastFeeding.value || '100'} ml` : 'Sem registro'}
+          color={colors.greenMid}
+        />
+        <MiniCard
+          title="Sono"
+          value={lastSleep ? lastSleep.title : 'Sem registro'}
+          color={colors.gold}
+        />
       </View>
 
       <View style={styles.summaryRow}>
-        <MiniCard title="Banho" value="Banho há 3h 05m" color={colors.greenSoft} />
-        <MiniCard title="Fralda" value="Fralda trocada há 1h 05m" color={colors.success} />
+        <MiniCard
+          title="Banho"
+          value={records.some((item) => item.type === 'bath') ? 'Registrado' : 'Sem registro'}
+          color={colors.greenSoft}
+        />
+        <MiniCard
+          title="Fralda"
+          value={lastDiaper ? lastDiaper.title : 'Sem registro'}
+          color={colors.success}
+        />
       </View>
 
       <View style={styles.panel}>
         <Text style={styles.sectionTitle}>Resumo</Text>
+        <Text style={styles.metric}>{recentStatus}</Text>
         <Text style={styles.metric}>Temperatura: 36,8°C</Text>
         <Text style={styles.metric}>Água: 1 copo</Text>
         <Text style={styles.metric}>Último banho: 3h 05m</Text>

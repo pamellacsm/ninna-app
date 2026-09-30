@@ -1,9 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { colors } from '../theme/colors';
-import { routineItems } from '../data/mockData';
+import { getRecords } from '../services/storage';
 
 export default function RoutineScreen() {
+  const [records, setRecords] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadRecords = async () => {
+      const saved = await getRecords();
+      setRecords(saved);
+    };
+
+    loadRecords();
+  }, []);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const todaysRecords = records.filter((record) => {
+    const created = record.createdAt ? new Date(record.createdAt).toISOString().slice(0, 10) : null;
+    return created === today;
+  });
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
@@ -12,15 +29,19 @@ export default function RoutineScreen() {
       </View>
 
       <View style={styles.panel}>
-        {routineItems.map((item) => (
-          <View key={`${item.time}-${item.label}`} style={styles.row}>
-            <Text style={styles.time}>{item.time}</Text>
-            <View style={styles.itemBox}>
-              <Text style={styles.itemLabel}>{item.label}</Text>
-              <Text style={styles.itemDetail}>{item.detail}</Text>
+        {todaysRecords.length === 0 ? (
+          <Text style={styles.empty}>Nenhum registro hoje ainda.</Text>
+        ) : (
+          todaysRecords.map((item, index) => (
+            <View key={`${item.id || index}-${item.createdAt}`} style={styles.row}>
+              <Text style={styles.time}>{new Date(item.createdAt).toTimeString().slice(0, 5)}</Text>
+              <View style={styles.itemBox}>
+                <Text style={styles.itemLabel}>{item.title || 'Registro'}</Text>
+                <Text style={styles.itemDetail}>{item.value || item.notes || 'Sem detalhe'}</Text>
+              </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -57,4 +78,5 @@ const styles = StyleSheet.create({
   },
   itemLabel: { color: colors.text, fontWeight: '700', fontSize: 16 },
   itemDetail: { color: colors.muted, marginTop: 4 },
+  empty: { color: colors.muted, fontSize: 16 },
 });

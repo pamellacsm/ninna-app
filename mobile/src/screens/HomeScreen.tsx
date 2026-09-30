@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { colors } from '../theme/colors';
-import { todaySummary } from '../data/mockData';
+import { todaySummary, quickActions } from '../data/mockData';
 
 export default function HomeScreen() {
-  const quickActions = ['Mamadeira', 'Sono', 'Banho', 'Fralda', 'Xixi', 'Cocô'];
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
@@ -38,6 +36,7 @@ export default function HomeScreen() {
       <View style={styles.panel}>
         <Text style={styles.sectionTitle}>Resumo</Text>
         <Text style={styles.metric}>Temperatura: {todaySummary.temp}</Text>
+        <Text style={styles.metric}>Água: {todaySummary.water}</Text>
         <Text style={styles.metric}>Último banho: {todaySummary.lastBath}</Text>
       </View>
     </ScrollView>

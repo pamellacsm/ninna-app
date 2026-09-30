@@ -9,6 +9,9 @@ import RoutineScreen from './src/screens/RoutineScreen';
 import MoreScreen from './src/screens/MoreScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import BabyProfileScreen from './src/screens/BabyProfileScreen';
+import RegisterOptionsScreen from './src/screens/RegisterOptionsScreen';
+import PremiumScreen from './src/screens/PremiumScreen';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +42,7 @@ function MainTabs() {
 }
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState(true);
 
   const isAuthenticated = useMemo(() => isLogged, [isLogged]);
 
@@ -58,7 +61,12 @@ export default function App() {
               </Stack.Screen>
             </>
           ) : (
-            <Stack.Screen name="HomeTabs" component={MainTabs} />
+            <>
+              <Stack.Screen name="HomeTabs" component={MainTabs} />
+              <Stack.Screen name="BabyProfile" component={BabyProfileScreen} />
+              <Stack.Screen name="RegisterOptions" component={RegisterOptionsScreen} />
+              <Stack.Screen name="Premium" component={PremiumScreen} />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>

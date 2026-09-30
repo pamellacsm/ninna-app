@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "NINNA",
+    "slug": "ninna-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ninna.app"
+    },
+    "android": {
+      "package": "com.ninna.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1F3F2A"
+      }
+    }
+  }
+}

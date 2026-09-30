@@ -1,0 +1,18 @@
+{
+  "name": "ninna-app",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "mobile"
+  ],
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:mobile": "npm --prefix mobile run start",
+    "dev:android": "npm --prefix mobile run android",
+    "dev:ios": "npm --prefix mobile run ios",
+    "build:backend": "npm --prefix backend run build",
+    "build:mobile": "npm --prefix mobile run build"
+  },
+  "author": "Pâmella Mourão",
+  "license": "MIT"
+}

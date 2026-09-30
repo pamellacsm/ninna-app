@@ -1,0 +1,12 @@
+# NINNA
+
+node_modules/
+.expo/
+.expo-shared/
+.dist/
+.env
+.DS_Store
+android/build/
+ios/build/
+coverage/
+*.log

@@ -1,40 +1,34 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BabyProfile, RoutineRecord } from '../types/records';
 
-const STORAGE_KEYS = {
-  baby: 'ninna_baby_profile',
-  records: 'ninna_records',
-};
+export const AUTH_KEY = 'ninna_auth_token';
+export const USER_KEY = 'ninna_user';
+export const BABY_KEY = 'ninna_baby_profile';
 
-export async function getBabyProfile(): Promise<BabyProfile | null> {
-  const raw = await AsyncStorage.getItem(STORAGE_KEYS.baby);
-  return raw ? (JSON.parse(raw) as BabyProfile) : null;
+export async function saveSession(token: string, user: Record<string, any>) {
+  await AsyncStorage.setItem(AUTH_KEY, token);
+  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-export async function saveBabyProfile(profile: BabyProfile) {
-  await AsyncStorage.setItem(STORAGE_KEYS.baby, JSON.stringify(profile));
+export async function clearSession() {
+  await AsyncStorage.removeItem(AUTH_KEY);
+  await AsyncStorage.removeItem(USER_KEY);
+  await AsyncStorage.removeItem(BABY_KEY);
 }
 
-export async function getRecords(): Promise<RoutineRecord[]> {
-  const raw = await AsyncStorage.getItem(STORAGE_KEYS.records);
-  return raw ? (JSON.parse(raw) as RoutineRecord[]) : [];
+export async function getStoredToken() {
+  return AsyncStorage.getItem(AUTH_KEY);
 }
 
-export async function saveRecords(records: RoutineRecord[]) {
-  await AsyncStorage.setItem(STORAGE_KEYS.records, JSON.stringify(records));
+export async function getStoredUser() {
+  const raw = await AsyncStorage.getItem(USER_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
-export async function addRecord(record: RoutineRecord) {
-  const current = await getRecords();
-  await saveRecords([record, ...current]);
+export async function getStoredBaby() {
+  const raw = await AsyncStorage.getItem(BABY_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
-export function createDefaultBabyProfile(): BabyProfile {
-  return {
-    id: 'baby-1',
-    name: 'Miguel',
-    birthDate: '2025-01-15',
-    sex: 'Masculino',
-    createdAt: new Date().toISOString(),
-  };
+export async function saveBaby(baby: Record<string, any>) {
+  await AsyncStorage.setItem(BABY_KEY, JSON.stringify(baby));
 }

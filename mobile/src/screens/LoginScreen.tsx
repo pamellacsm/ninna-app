@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
 import { colors } from '../theme/colors';
-
-const AUTH_KEY = 'ninna_auth_token';
-const USER_KEY = 'ninna_user';
+import { loginUser } from '../services/api';
+import { saveSession } from '../services/storage';
 
 export default function LoginScreen({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('pammourao@gmail.com');
@@ -20,21 +18,8 @@ export default function LoginScreen({ onLogin }: { onLogin?: () => void }) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Falha ao entrar');
-      }
-
-      await AsyncStorage.setItem(AUTH_KEY, data.token);
-      await AsyncStorage.setItem(USER_KEY, JSON.stringify(data.user));
-
+      const data = await loginUser(email, password);
+      await saveSession(data.token, data.user);
       if (onLogin) onLogin();
     } catch (error: any) {
       Alert.alert('Erro', error.message || 'Não foi possível entrar');

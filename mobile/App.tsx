@@ -11,6 +11,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import BabyProfileScreen from './src/screens/BabyProfileScreen';
 import RegisterOptionsScreen from './src/screens/RegisterOptionsScreen';
+import RecordFormScreen from './src/screens/RecordFormScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
 import { colors } from './src/theme/colors';
 
@@ -43,7 +44,6 @@ function MainTabs() {
 
 export default function App() {
   const [isLogged, setIsLogged] = useState(true);
-
   const isAuthenticated = useMemo(() => isLogged, [isLogged]);
 
   return (
@@ -65,6 +65,7 @@ export default function App() {
               <Stack.Screen name="HomeTabs" component={MainTabs} />
               <Stack.Screen name="BabyProfile" component={BabyProfileScreen} />
               <Stack.Screen name="RegisterOptions" component={RegisterOptionsScreen} />
+              <Stack.Screen name="RecordForm" component={RecordFormScreen} />
               <Stack.Screen name="Premium" component={PremiumScreen} />
             </>
           )}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert } from 'react-native';
 import { colors } from '../theme/colors';
 import { addRecord } from '../services/storage';
+import { syncPendingRecords } from '../services/api';
 
 export default function RecordFormScreen({ route, navigation }: any) {
   const { type, title } = route.params ?? { type: 'feeding', title: 'Registro' };
@@ -22,6 +23,13 @@ export default function RecordFormScreen({ route, navigation }: any) {
     };
 
     await addRecord(record);
+
+    try {
+      await syncPendingRecords();
+    } catch (error) {
+      // keeps local queue if backend is offline; retry later
+    }
+
     navigation.goBack();
   };
 

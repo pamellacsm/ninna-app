@@ -47,3 +47,20 @@ export async function saveRoutineRecord(payload: Record<string, any>) {
     body: JSON.stringify(payload),
   });
 }
+
+export async function syncPendingRecords() {
+  const { getPendingSyncRecords, clearPendingSyncRecords } = await import('./storage');
+  const pending = await getPendingSyncRecords();
+
+  if (!pending.length) {
+    return { synced: 0, pending: 0 };
+  }
+
+  await apiRequest('/api/records/sync', {
+    method: 'POST',
+    body: JSON.stringify({ records: pending }),
+  });
+
+  await clearPendingSyncRecords();
+  return { synced: pending.length, pending: 0 };
+}

@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
+import { syncPendingRecords } from '../services/api';
 import { getStoredBaby, getStoredUser, getRecords } from '../services/storage';
+
+function getRelativeLabel(dateIso?: string) {
+  if (!dateIso) return 'Sem registro';
+  const diff = Date.now() - new Date(dateIso).getTime();
+  const mins = Math.max(1, Math.floor(diff / 60000));
+
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
 
 export default function HomeScreen() {
   const [user, setUser] = useState<any>(null);
@@ -10,6 +23,12 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadData = async () => {
+      try {
+        await syncPendingRecords();
+      } catch (error) {
+        // backend may be offline; keep local records and retry later
+      }
+
       const savedUser = await getStoredUser();
       const savedBaby = await getStoredBaby();
       const savedRecords = await getRecords();
@@ -25,20 +44,24 @@ export default function HomeScreen() {
   const babyName = baby?.name || 'Miguel';
   const firstName = user?.name ? user.name.split(' ')[0] : 'Olá';
 
-  const lastFeeding = records
+  const lastFeeding = [...records]
     .filter((item) => item.type === 'feeding')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
-  const lastSleep = records
+  const lastSleep = [...records]
     .filter((item) => item.type === 'sleep')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
-  const lastDiaper = records
+  const lastDiaper = [...records]
     .filter((item) => item.type === 'diaper')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
-  const recentStatus =
-    lastFeeding || lastSleep || lastDiaper
+  const lastBath = [...records]
+    .filter((item) => item.type === 'bath')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+  const summaryText =
+    lastFeeding || lastSleep || lastDiaper || lastBath
       ? 'Últimas ações registradas com sucesso.'
       : 'Ainda não há registros hoje.';
 
@@ -58,7 +81,7 @@ export default function HomeScreen() {
         />
         <MiniCard
           title="Sono"
-          value={lastSleep ? lastSleep.title : 'Sem registro'}
+          value={lastSleep ? `${lastSleep.title || 'Registro'} · ${getRelativeLabel(lastSleep.createdAt)}` : 'Sem registro'}
           color={colors.gold}
         />
       </View>
@@ -66,22 +89,22 @@ export default function HomeScreen() {
       <View style={styles.summaryRow}>
         <MiniCard
           title="Banho"
-          value={records.some((item) => item.type === 'bath') ? 'Registrado' : 'Sem registro'}
+          value={lastBath ? `${lastBath.title || 'Banho'} · ${getRelativeLabel(lastBath.createdAt)}` : 'Sem registro'}
           color={colors.greenSoft}
         />
         <MiniCard
           title="Fralda"
-          value={lastDiaper ? lastDiaper.title : 'Sem registro'}
+          value={lastDiaper ? `${lastDiaper.title || 'Fralda'} · ${getRelativeLabel(lastDiaper.createdAt)}` : 'Sem registro'}
           color={colors.success}
         />
       </View>
 
       <View style={styles.panel}>
         <Text style={styles.sectionTitle}>Resumo</Text>
-        <Text style={styles.metric}>{recentStatus}</Text>
+        <Text style={styles.metric}>{summaryText}</Text>
         <Text style={styles.metric}>Temperatura: 36,8°C</Text>
         <Text style={styles.metric}>Água: 1 copo</Text>
-        <Text style={styles.metric}>Último banho: 3h 05m</Text>
+        <Text style={styles.metric}>Último banho: {lastBath ? getRelativeLabel(lastBath.createdAt) : 'Sem registro'}</Text>
       </View>
     </ScrollView>
   );

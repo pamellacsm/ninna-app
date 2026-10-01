@@ -5,6 +5,7 @@ export const USER_KEY = 'ninna_user';
 export const BABY_KEY = 'ninna_baby_profile';
 export const RECORDS_KEY = 'ninna_records';
 export const PENDING_SYNC_KEY = 'ninna_pending_sync';
+export const PREMIUM_KEY = 'ninna_premium';
 
 export async function saveSession(token: string, user: Record<string, any>) {
   await AsyncStorage.setItem(AUTH_KEY, token);
@@ -17,6 +18,7 @@ export async function clearSession() {
   await AsyncStorage.removeItem(BABY_KEY);
   await AsyncStorage.removeItem(RECORDS_KEY);
   await AsyncStorage.removeItem(PENDING_SYNC_KEY);
+  await AsyncStorage.removeItem(PREMIUM_KEY);
 }
 
 export async function getStoredToken() {
@@ -62,4 +64,13 @@ export async function getPendingSyncRecords() {
 
 export async function clearPendingSyncRecords() {
   await AsyncStorage.removeItem(PENDING_SYNC_KEY);
+}
+
+export async function savePremiumStatus(isPremium: boolean) {
+  await AsyncStorage.setItem(PREMIUM_KEY, JSON.stringify(isPremium));
+}
+
+export async function getPremiumStatus() {
+  const raw = await AsyncStorage.getItem(PREMIUM_KEY);
+  return raw ? JSON.parse(raw) : false;
 }

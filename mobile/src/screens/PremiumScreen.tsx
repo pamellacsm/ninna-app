@@ -1,21 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
-
-const options = [
-  'Mamadeira',
-  'Sono',
-  'Banho',
-  'Fralda',
-  'Xixi',
-  'Cocô',
-  'Temperatura',
-  'Cólica',
-  'Crescimento',
-  'Diário',
-];
+import { getPremiumStatus, savePremiumStatus } from '../services/storage';
 
 export default function PremiumScreen() {
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const loadStatus = async () => {
+      const premium = await getPremiumStatus();
+      setIsPremium(Boolean(premium));
+    };
+    loadStatus();
+  }, []);
+
+  const activatePremium = async () => {
+    await savePremiumStatus(true);
+    setIsPremium(true);
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>NINNA Premium</Text>
@@ -24,24 +27,23 @@ export default function PremiumScreen() {
       <View style={styles.cardHighlight}>
         <Text style={styles.cardLabel}>Plano Premium</Text>
         <Text style={styles.price}>R$ 29,90/mês</Text>
-        <Text style={styles.feature}>✓ Cólica</Text>
-        <Text style={styles.feature}>✓ Medicamentos</Text>
-        <Text style={styles.feature}>✓ Vacinas</Text>
-        <Text style={styles.feature}>✓ Consultas</Text>
         <Text style={styles.feature}>✓ Relatório para pediatra</Text>
+        <Text style={styles.feature}>✓ Histórico de evolução</Text>
+        <Text style={styles.feature}>✓ Consultas e vacinas</Text>
+        <Text style={styles.feature}>✓ Acompanhamento detalhado</Text>
       </View>
 
       <View style={styles.list}>
-        {options.map((item) => (
+        {['Mamadeira', 'Sono', 'Banho', 'Fralda', 'Crescimento', 'Temperatura', 'Vacinas', 'Consultas'].map((item) => (
           <View key={item} style={styles.itemRow}>
             <Text style={styles.itemText}>{item}</Text>
-            <Text style={styles.badge}>Premium</Text>
+            <Text style={styles.badge}>{isPremium ? 'Ativo' : 'Premium'}</Text>
           </View>
         ))}
       </View>
 
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Ativar Premium</Text>
+      <Pressable style={[styles.button, isPremium && styles.buttonDisabled]} onPress={activatePremium} disabled={isPremium}>
+        <Text style={styles.buttonText}>{isPremium ? 'Premium ativo' : 'Ativar Premium'}</Text>
       </Pressable>
     </ScrollView>
   );
@@ -71,5 +73,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
   },
+  buttonDisabled: { opacity: 0.7 },
   buttonText: { color: colors.greenDeep, fontWeight: '800', fontSize: 18 },
 });

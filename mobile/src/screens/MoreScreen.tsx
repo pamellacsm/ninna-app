@@ -1,28 +1,43 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '../theme/colors';
-import { useNavigation } from '@react-navigation/native';
 
 export default function MoreScreen() {
-  const navigation = useNavigation<any>();
+  const [userName, setUserName] = useState('Usuário');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const raw = await AsyncStorage.getItem('ninna_user');
+      if (raw) {
+        const user = JSON.parse(raw);
+        setUserName(user?.name || 'Usuário');
+      }
+    };
+    loadUser();
+  }, []);
 
   const items = [
-    { label: 'Perfil do bebê', action: () => navigation.navigate('BabyProfile') },
-    { label: 'Premium', action: () => navigation.navigate('Premium') },
-    { label: 'Configurações', action: () => null },
-    { label: 'Privacidade', action: () => null },
+    { label: 'Perfil do bebê', route: 'BabyProfile' },
+    { label: 'Relatório', route: 'Reports' },
+    { label: 'Premium', route: 'Premium' },
+    { label: 'Configurações', route: null },
+    { label: 'Privacidade', route: null },
   ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.label}>Mais</Text>
-        <Text style={styles.title}>Conta</Text>
+        <Text style={styles.title}>{userName}</Text>
       </View>
 
       <View style={styles.panel}>
         {items.map((item) => (
-          <Pressable key={item.label} onPress={item.action} style={styles.itemWrap}>
+          <Pressable
+            key={item.label}
+            onPress={() => item.route && navigation.navigate(item.route)}
+            style={styles.itemWrap}
+          >
             <Text style={styles.item}>{item.label}</Text>
           </Pressable>
         ))}

@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
@@ -13,6 +12,8 @@ import BabyProfileScreen from './src/screens/BabyProfileScreen';
 import RegisterOptionsScreen from './src/screens/RegisterOptionsScreen';
 import RecordFormScreen from './src/screens/RecordFormScreen';
 import PremiumScreen from './src/screens/PremiumScreen';
+import ReportsScreen from './src/screens/ReportsScreen';
+import { NavigationContainer } from '@react-navigation/native';
 import { colors } from './src/theme/colors';
 import { getStoredToken } from './src/services/storage';
 
@@ -44,10 +45,10 @@ function MainTabs() {
 }
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [isLogged, setIsLogged] = React.useState(false);
+  const [ready, setReady] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const checkSession = async () => {
       const token = await getStoredToken();
       setIsLogged(Boolean(token));
@@ -56,8 +57,6 @@ export default function App() {
 
     checkSession();
   }, []);
-
-  const isAuthenticated = useMemo(() => isLogged, [isLogged]);
 
   if (!ready) {
     return null;
@@ -68,7 +67,7 @@ export default function App() {
       <StatusBar style="light" />
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {!isAuthenticated ? (
+          {!isLogged ? (
             <>
               <Stack.Screen name="Onboarding">
                 {(props) => <OnboardingScreen {...props} onContinue={() => setIsLogged(true)} />}
@@ -84,6 +83,7 @@ export default function App() {
               <Stack.Screen name="RegisterOptions" component={RegisterOptionsScreen} />
               <Stack.Screen name="RecordForm" component={RecordFormScreen} />
               <Stack.Screen name="Premium" component={PremiumScreen} />
+              <Stack.Screen name="Reports" component={ReportsScreen} />
             </>
           )}
         </Stack.Navigator>
